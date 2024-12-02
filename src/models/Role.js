@@ -16,7 +16,7 @@ const Role = sequelize.define(
     },
   },
   {
-    tableName: "roles", // rang buoc sai cai nay
+    tableName: "roles",
   }
 );
 

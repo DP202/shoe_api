@@ -1,39 +1,42 @@
 "use strict";
-
 const { DataTypes } = require("sequelize");
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("users", {
+    await queryInterface.createTable("products", {
       id: {
         type: DataTypes.INTEGER,
-        primaryKey: true,
         autoIncrement: true,
+        primaryKey: true,
       },
       name: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      password: {
-        type: DataTypes.STRING,
+
+      desc: {
+        type: DataTypes.TEXT,
         allowNull: false,
       },
-      avatar: {
-        type: DataTypes.STRING,
-        allowNull: true,
+      thumbnai: {
+        type: DataTypes.TEXT,
+        allowNull: false,
       },
-      roleId: {
+      brandId: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 0,
         references: {
-          model: "roles",
+          model: "brands",
+          key: "id",
+        },
+      },
+      categoryId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+
+        references: {
+          model: "categories",
           key: "id",
         },
       },
@@ -49,7 +52,8 @@ module.exports = {
       },
     });
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("users");
+    await queryInterface.dropTable("products");
   },
 };

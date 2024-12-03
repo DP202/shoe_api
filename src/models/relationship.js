@@ -2,10 +2,13 @@
 
 const Brand = require("./Brand");
 const Category = require("./Category");
+const Color = require("./Color");
 const Product = require("./Product");
 const ProductImages = require("./ProductImages");
 const Role = require("./Role");
+const Size = require("./Size");
 const User = require("./User");
+const Variant = require("./Variant");
 
 // Một Role có nhiều User #  Mỗi user chỉ có 1 role duy nhất
 Role.hasMany(User, {
@@ -48,4 +51,37 @@ Product.hasMany(ProductImages, {
 ProductImages.belongsTo(Product, {
   foreignKey: "productId",
   as: "products",
+});
+
+// Product - Variant : 1 - N
+// 1 SP có nhiều biến thể  #  Mỗi biến thể thuộc về 1 SP duy nhất
+Product.hasMany(Variant, {
+  foreignKey: "productId",
+});
+
+Variant.belongsTo(Product, {
+  foreignKey: "productId",
+  as: "products",
+});
+
+// Color - Variant : 1 - N
+
+Color.hasMany(Variant, {
+  foreignKey: "colorId",
+});
+
+Variant.belongsTo(Color, {
+  foreignKey: "colorId",
+  as: "colors",
+});
+
+// Size - Variant : 1 - N
+
+Size.hasMany(Variant, {
+  foreignKey: "sizeId",
+});
+
+Variant.belongsTo(Size, {
+  foreignKey: "colorId",
+  as: "colors",
 });

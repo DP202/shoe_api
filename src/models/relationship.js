@@ -3,6 +3,8 @@
 const Brand = require("./Brand");
 const Category = require("./Category");
 const Color = require("./Color");
+const Order = require("./Order");
+const Order_Details = require("./Order_Details.js");
 const Product = require("./Product");
 const ProductImages = require("./ProductImages");
 const Role = require("./Role");
@@ -12,10 +14,10 @@ const Variant = require("./Variant");
 
 // Một Role có nhiều User #  Mỗi user chỉ có 1 role duy nhất
 Role.hasMany(User, {
-  foreignKey: "role",
+  foreignKey: "roleId",
 });
 User.belongsTo(Role, {
-  foreignKey: "role",
+  foreignKey: "roleId",
   as: "roles",
 });
 
@@ -84,4 +86,36 @@ Size.hasMany(Variant, {
 Variant.belongsTo(Size, {
   foreignKey: "colorId",
   as: "colors",
+});
+
+// User - Order : 1 - N
+
+User.hasMany(Order, {
+  foreignKey: "userId",
+});
+
+Order.belongsTo(User, {
+  foreignKey: "userId",
+  as: "users",
+});
+
+// OrderDetail - Order
+Order.hasMany(Order_Details, {
+  foreignKey: "orderId",
+});
+
+Order_Details.belongsTo(Order, {
+  foreignKey: "orderId",
+  as: "orders",
+});
+
+// Variant - OrdeDetail
+
+Variant.hasMany(Order_Details, {
+  foreignKey: "variantId",
+});
+
+Order_Details.belongsTo(Variant, {
+  foreignKey: "variantId",
+  as: "variants",
 });

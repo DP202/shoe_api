@@ -5,8 +5,10 @@ const morgan = require("morgan");
 const sequelize = require("./connects");
 const handleRouters = require("./routes");
 app.use(express.json());
+const cors = require("cors");
 app.use(morgan("dev"));
 
+app.use(cors());
 sequelize
   .sync()
   .then(() => {

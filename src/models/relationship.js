@@ -25,11 +25,12 @@ User.belongsTo(Role, {
 // Một danh mục có nhiều sản phẩm # Mỗi sản phẩm thuộc về 1 danh mục
 Category.hasMany(Product, {
   foreignKey: "categoryId",
+  as: "products",
 });
 
 Product.belongsTo(Category, {
   foreignKey: "categoryId",
-  as: "categories",
+  as: "category",
 });
 
 // Brand - Product : 1-N
@@ -40,7 +41,7 @@ Brand.hasMany(Product, {
 
 Product.belongsTo(Brand, {
   foreignKey: "brandId",
-  as: "brands",
+  as: "brand",
 });
 
 // product - product_image
@@ -48,6 +49,7 @@ Product.belongsTo(Brand, {
 
 Product.hasMany(ProductImages, {
   foreignKey: "productId",
+  as: "products",
 });
 
 ProductImages.belongsTo(Product, {
@@ -59,6 +61,7 @@ ProductImages.belongsTo(Product, {
 // 1 SP có nhiều biến thể  #  Mỗi biến thể thuộc về 1 SP duy nhất
 Product.hasMany(Variant, {
   foreignKey: "productId",
+  as: "variants",
 });
 
 Variant.belongsTo(Product, {
@@ -85,7 +88,7 @@ Size.hasMany(Variant, {
 
 Variant.belongsTo(Size, {
   foreignKey: "colorId",
-  as: "colors",
+  as: "sizes",
 });
 
 // User - Order : 1 - N

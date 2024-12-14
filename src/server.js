@@ -9,6 +9,8 @@ const cors = require("cors");
 app.use(morgan("dev"));
 
 app.use(cors());
+require("./models/relationship");
+
 sequelize
   .sync()
   .then(() => {

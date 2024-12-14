@@ -1,5 +1,6 @@
 const { where } = require("sequelize");
 const Color = require("../models/Color");
+const Variant = require("../models/Variant");
 
 const createColor = async (req, res, next) => {
   try {
@@ -42,6 +43,13 @@ const deleteColorById = async (req, res, next) => {
   if (!color) {
     res.status(400).json({
       message: `Không tìm thấy màu sắc với ID = ${id}`,
+    });
+  }
+
+  const relatedVariants = await Variant.findOne({ where: { colorId: id } });
+  if (relatedVariants) {
+    return res.status(400).json({
+      message: "Không thể xóa màu sắc này vì nó nằm trong bảng ghi Variants",
     });
   }
 

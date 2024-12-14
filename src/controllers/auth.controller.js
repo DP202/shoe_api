@@ -35,10 +35,8 @@ const register = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
-  console.log("LOGIN API body : ", req.body);
   const { email, password } = req.body;
   const account = await User.findOne({ where: { email } }); // tì, tài khoản có email
-  console.log("Account : ", account);
 
   if (!account) {
     return res.status(400).json({

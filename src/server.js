@@ -1,11 +1,17 @@
 const express = require("express");
 const app = express();
+
+const bodyParser = require("body-parser");
+const fs = require("fs");
+const mime = require("mime");
+
 const port = 3000;
 const morgan = require("morgan");
 const sequelize = require("./connects");
 const handleRouters = require("./routes");
 app.use(express.json());
 const cors = require("cors");
+const path = require("path");
 app.use(morgan("dev"));
 
 app.use(cors());

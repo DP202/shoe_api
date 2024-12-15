@@ -21,6 +21,10 @@ const Variant = sequelize.define(
         key: "id",
       },
     },
+    product_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     colorId: {
       type: DataTypes.INTEGER,
       allowNull: false,

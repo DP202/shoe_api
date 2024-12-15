@@ -9,13 +9,16 @@ const port = 3000;
 const morgan = require("morgan");
 const sequelize = require("./connects");
 const handleRouters = require("./routes");
-app.use(express.json());
 const cors = require("cors");
 const path = require("path");
 app.use(morgan("dev"));
+app.use(express.json());
 
 app.use(cors());
 require("./models/relationship");
+
+const uploadsDirectory = path.join(__dirname, "uploads");
+app.use("/uploads", express.static(uploadsDirectory));
 
 sequelize
   .sync()

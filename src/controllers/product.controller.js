@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const Brand = require("../models/Brand");
 const Category = require("../models/Category");
 const Color = require("../models/Color");
@@ -10,103 +11,115 @@ const uploadImage = async (req, res, next) => {};
 
 const fs = require("fs");
 const path = require("path");
-
 const createProduct = async (req, res, next) => {
   try {
     const {
       name,
       desc,
-      thumbnai, // Base64 string cho hình ảnh thumbnail
       brandId,
       categoryId,
-      colorIds,
-      sizeIds,
       price,
       price_promotion,
       quantity,
     } = req.body;
 
-    // Kiểm tra và xử lý Base64 string cho thumbnail
-    let filePath = null;
-    if (thumbnai) {
-      const matches = thumbnai.match(
-        /^data:image\/([a-zA-Z]*);base64,([^\"]*)$/
-      );
-      if (matches && matches.length === 3) {
-        const ext = matches[1]; // Lấy định dạng ảnh (ví dụ: png, jpeg)
-        const base64Data = matches[2]; // Dữ liệu base64 của hình ảnh
-        const fileName = `${Date.now()}_${Math.random()
-          .toString(36)
-          .substring(7)}.${ext}`; // Tạo tên file duy nhất
-        filePath = fileName; // Chỉ cần tên file không cần thêm /files
+    let colorIds = req.body.colorIds || "[]";
+    let sizeIds = req.body.sizeIds || "[]";
 
-        // Kiểm tra nếu thư mục 'files' không tồn tại, thì tạo nó
-        const directoryPath = path.join(__dirname, "files");
-        if (!fs.existsSync(directoryPath)) {
-          fs.mkdirSync(directoryPath, { recursive: true });
-        }
+    console.log("colorIds", colorIds);
 
-        // Chuyển base64 thành buffer và lưu vào thư mục
-        const buffer = Buffer.from(base64Data, "base64");
-        fs.writeFileSync(path.join(directoryPath, filePath), buffer);
-      } else {
-        return res
-          .status(400)
-          .json({ message: "Dữ liệu Base64 không hợp lệ!" });
-      }
+    if (typeof colorIds === "string") {
+      colorIds = JSON.parse(colorIds);
+    }
+    if (typeof sizeIds === "string") {
+      sizeIds = JSON.parse(sizeIds);
+    }
+
+    if (!Array.isArray(colorIds) || colorIds.length === 0) {
+      return res.status(400).json({
+        message: "Mảng ColorIds không hợp lệ! Vui lòng gửi ít nhất một màu.",
+      });
+    }
+
+    if (!Array.isArray(sizeIds) || sizeIds.length === 0) {
+      return res.status(400).json({
+        message:
+          "Mảng SizeIds không hợp lệ! Vui lòng gửi ít nhất một kích thước.",
+      });
+    }
+
+    let thumbnai = "";
+    if (req.file) {
+      thumbnai = req.file.filename;
     }
 
     // Tạo sản phẩm mới
     const product = await Product.create({
       name,
       desc,
-      thumbnai: filePath, // Lưu tên file ảnh vào sản phẩm
+      thumbnai,
       brandId,
       categoryId,
+      price,
+      price_promotion,
+      quantity,
     });
 
-    // Kiểm tra mảng colorIds và sizeIds
-    if (!colorIds || !Array.isArray(colorIds) || colorIds.length === 0) {
+    const validSizeIds = await Size.findAll({
+      where: {
+        id: sizeIds,
+      },
+    });
+
+    if (validSizeIds.length !== sizeIds.length) {
       return res.status(400).json({
-        message: "Mảng ColorIds không hợp lệ!",
+        message: "Một số sizeId không hợp lệ hoặc không tồn tại trong hệ thống",
       });
     }
 
-    if (!sizeIds || !Array.isArray(sizeIds) || sizeIds.length === 0) {
-      return res.status(400).json({
-        message: "Mảng SizeIds không hợp lệ!",
-      });
-    }
+    // for (let i = 0; i < colorIds.length; i++) {
+    //   for (let j = 0; j < sizeIds.length; j++) {
+    //     // Tạo variant cho mỗi kết hợp color và size
+    //     await Variant.create({
+    //       productId: product.id,
+    //       colorId: colorIds[i],
+    //       sizeId: sizeIds[j],
+    //       price,
+    //       product_name: product.name,
+    //       price_promotion,
+    //       quantity,
+    //     });
+    //   }
+    // }
 
-    // Tạo các variant cho sản phẩm
-    for (let i = 0; i < colorIds.length; i++) {
-      for (let j = 0; j < sizeIds.length; j++) {
-        if (!colorIds[i] || !sizeIds[j]) {
-          return res.status(400).json({
-            message: "ColorId hoặc SizeId không hợp lệ!",
-          });
-        }
+    for (const colorId of colorIds) {
+      for (const sizeId of sizeIds) {
+        // Tạo variant cho mỗi kết hợp color và size
         await Variant.create({
           productId: product.id,
-          colorId: colorIds[i],
-          sizeId: sizeIds[j],
+          colorId,
+          sizeId,
           price,
+          product_name: product.name,
           price_promotion,
           quantity,
         });
       }
     }
 
+    // Trả về kết quả
     res.status(201).json({
       message: "Thêm sản phẩm thành công",
       data: product,
     });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({
-      message: "Có lỗi xảy ra khi tạo sản phẩm: " + error,
+      message: "Có lỗi xảy ra khi tạo sản phẩm: " + error.message,
     });
   }
 };
+
 const getAllProducts = async (req, res, next) => {
   try {
     const product = await Product.findAll({
